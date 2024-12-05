@@ -4,7 +4,7 @@
             <div id="container">
                 <!-- Title -->
                 <ion-text style="margin-bottom: 20px; text-align: center;">
-                    <h1>Gusteau's Recipe List</h1>
+                    <h1>Andy's Toys List</h1>
                 </ion-text>
 
                 <!-- Button Sign In -->

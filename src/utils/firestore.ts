@@ -13,10 +13,10 @@ import {
 } from 'firebase/firestore';
 
 // interface data
-export interface Recipe {
+export interface Toys {
     id?: string;
-    title: string;
-    description: string;
+    nama: string;
+    cerita: string;
     status: boolean;
     createdAt: Timestamp;
     updatedAt: Timestamp;
@@ -24,65 +24,65 @@ export interface Recipe {
 
 export const firestoreService = {
     // get collection ref for all users
-    getGlobalRecipeRef() {
-        return collection(db, 'recipes');
+    getGlobalToysRef() {
+        return collection(db, 'toyss');
     },
 
     // create
-    async addRecipeGlobal(recipe: Omit<Recipe, 'id'>) {
+    async addToysGlobal(toys: Omit<Toys, 'id'>) {
         try {
-            const recipeRef = this.getGlobalRecipeRef();
-            const docRef = await addDoc(recipeRef, {
-                ...recipe,
+            const toysRef = this.getGlobalToysRef();
+            const docRef = await addDoc(toysRef, {
+                ...toys,
                 status: false,
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now()
             });
             return docRef.id;
         } catch (error) {
-            console.error('Error Tambah Recipe:', error);
+            console.error('Error Tambah Toys:', error);
             throw error;
         }
     },
 
-    async getGlobalRecipes(): Promise<Recipe[]> {
+    async getGlobalToyss(): Promise<Toys[]> {
         try {
-            const recipeRef = this.getGlobalRecipeRef();
-            const q = query(recipeRef, orderBy('updatedAt', 'desc'));
+            const toysRef = this.getGlobalToysRef();
+            const q = query(toysRef, orderBy('updatedAt', 'desc'));
             const snapshot = await getDocs(q);
             return snapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data()
-            } as Recipe));
+            } as Toys));
         } catch (error) {
-            console.error('Error Get Recipes:', error);
+            console.error('Error Get Toyss:', error);
             throw error;
         }
     },
 
 		// update
-    async updateRecipe(id: string, recipe: Partial<Recipe>) {
+    async updateToys(id: string, toys: Partial<Toys>) {
         try {
-            const recipeRef = this.getGlobalRecipeRef();
-            const docRef = doc(recipeRef, id);
+            const toysRef = this.getGlobalToysRef();
+            const docRef = doc(toysRef, id);
             await updateDoc(docRef, {
-                ...recipe,
+                ...toys,
                 updatedAt: Timestamp.now()
             });
         } catch (error) {
-            console.error('Error Update Recipe:', error);
+            console.error('Error Update Toys:', error);
             throw error;
         }
     },
 
 		// delete
-    async deleteRecipe(id: string) {
+    async deleteToys(id: string) {
         try {
-            const recipeRef = this.getGlobalRecipeRef();
-            const docRef = doc(recipeRef, id);
+            const toysRef = this.getGlobalToysRef();
+            const docRef = doc(toysRef, id);
             await deleteDoc(docRef);
         } catch (error) {
-            console.error('Error Delete Recipe:', error);
+            console.error('Error Delete Toys:', error);
             throw error;
         }
     },
@@ -90,8 +90,8 @@ export const firestoreService = {
 		// update status
     async updateStatus(id: string, status: boolean) {
         try {
-            const recipeRef = this.getGlobalRecipeRef();
-            const docRef = doc(recipeRef, id);
+            const toysRef = this.getGlobalToysRef();
+            const docRef = doc(toysRef, id);
             await updateDoc(docRef, { status: status, updatedAt: Timestamp.now() });
         } catch (error) {
             console.error('Error Update Status:', error);

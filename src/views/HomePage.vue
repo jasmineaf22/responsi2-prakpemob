@@ -2,7 +2,7 @@
   <ion-page>
     <ion-header :translucent="true">
       <ion-toolbar>
-        <ion-title>Recipe List</ion-title>
+        <ion-title>Toys List</ion-title>
       </ion-toolbar>
     </ion-header>
 
@@ -20,22 +20,22 @@
       <div class="scrollable-container">
         <ion-list>
           <ion-item-sliding
-            v-for="recipe in activeRecipes"
-            :key="recipe.id"
-            ref="setItemRef(recipe.id)"
+            v-for="toys in activeToyss"
+            :key="toys.id"
+            ref="setItemRef(toys.id)"
           >
             <ion-item>
-              <div class="clickable-zone" @click="showRecipeDetail(recipe)">
+              <div class="clickable-zone" @click="showToysDetail(toys)">
                 <ion-card class="full-width-card">
                   <ion-card-header>
-                    <ion-card-title>{{ recipe.title }}</ion-card-title>
+                    <ion-card-title>{{ toys.nama }}</ion-card-title>
                     <ion-card-subtitle>{{
-                      recipe.description
+                      toys.cerita
                     }}</ion-card-subtitle>
                   </ion-card-header>
                   <ion-card-content>
                     <ion-badge color="primary">{{
-                      getRelativeTime(recipe.updatedAt)
+                      getRelativeTime(toys.updatedAt)
                     }}</ion-badge>
                   </ion-card-content>
                 </ion-card>
@@ -44,7 +44,7 @@
 
             <!-- Slide Right to Edit -->
             <ion-item-options side="start">
-              <ion-item-option color="primary" @click="handleEdit(recipe)">
+              <ion-item-option color="primary" @click="handleEdit(toys)">
                 <ion-icon :icon="create" slot="start"></ion-icon>
                 Edit
               </ion-item-option>
@@ -52,16 +52,16 @@
 
             <!-- Slide Left to Delete -->
             <ion-item-options side="end">
-              <ion-item-option color="danger" @click="confirmDelete(recipe)">
+              <ion-item-option color="danger" @click="confirmDelete(toys)">
                 <ion-icon :icon="trash" slot="start"></ion-icon>
                 Delete
               </ion-item-option>
             </ion-item-options>
           </ion-item-sliding>
 
-          <ion-item v-if="activeRecipes.length === 0" class="ion-text-center">
+          <ion-item v-if="activeToyss.length === 0" class="ion-text-center">
             <ion-label
-              >There's nothing yet, start to add your own recipe!</ion-label
+              >There's nothing yet, start to add your own toys!</ion-label
             >
           </ion-item>
         </ion-list>
@@ -73,7 +73,7 @@
         >
           <ion-header>
             <ion-toolbar>
-              <ion-title>{{ selectedRecipe?.title }}</ion-title>
+              <ion-title>{{ selectedToys?.nama }}</ion-title>
               <ion-buttons slot="end">
                 <ion-button @click="isDetailModalOpen = false">
                   <ion-icon :icon="close"></ion-icon>
@@ -84,14 +84,14 @@
           <ion-content>
             <ion-card>
               <ion-card-header>
-                <ion-card-title>{{ selectedRecipe?.title }}</ion-card-title>
+                <ion-card-title>{{ selectedToys?.nama }}</ion-card-title>
                 <ion-card-subtitle>{{
-                  selectedRecipe?.description
+                  selectedToys?.cerita
                 }}</ion-card-subtitle>
               </ion-card-header>
               <ion-card-content>
                 <p>
-                  Last updated: {{ getRelativeTime(selectedRecipe?.updatedAt) }}
+                  Last updated: {{ getRelativeTime(selectedToys?.updatedAt) }}
                 </p>
               </ion-card-content>
             </ion-card>
@@ -107,7 +107,7 @@
       <InputModal
         v-model:isOpen="isOpen"
         v-model:editingId="editingId"
-        :recipe="recipe"
+        :toys="toys"
         @submit="handleSubmit"
       />
     </ion-content>
@@ -154,23 +154,23 @@ import {
 } from "ionicons/icons";
 import InputModal from "@/components/InputModal.vue";
 import { onMounted, ref, computed, onUnmounted } from "vue";
-import { firestoreService, type Recipe } from "@/utils/firestore";
+import { firestoreService, type Toys } from "@/utils/firestore";
 import { formatDistanceToNow } from "date-fns";
 import { alertController } from "@ionic/vue";
 import { IonModal, IonButtons, IonButton } from "@ionic/vue";
 
 const isDetailModalOpen = ref(false); // Controls modal visibility
-const selectedRecipe = ref<Recipe | null>(null); // Stores the selected recipe
+const selectedToys = ref<Toys | null>(null); // Stores the selected toys
 
-const showRecipeDetail = (recipe: Recipe) => {
-  selectedRecipe.value = recipe;
+const showToysDetail = (toys: Toys) => {
+  selectedToys.value = toys;
   isDetailModalOpen.value = true;
 };
 
-const confirmDelete = async (recipe: Recipe) => {
+const confirmDelete = async (toys: Toys) => {
   const alert = await alertController.create({
     header: "Confirm Delete",
-    message: `Are you sure you want to delete the recipe <strong>${recipe.title}</strong>?`,
+    message: `Are you sure you want to delete the toys ${toys.nama}`,
     buttons: [
       {
         text: "Cancel",
@@ -183,7 +183,7 @@ const confirmDelete = async (recipe: Recipe) => {
         text: "Delete",
         role: "destructive",
         handler: async () => {
-          await handleDelete(recipe);
+          await handleDelete(toys);
         },
       },
     ],
@@ -193,16 +193,16 @@ const confirmDelete = async (recipe: Recipe) => {
 
 const isOpen = ref(false);
 const editingId = ref<string | null>(null);
-const recipes = ref<Recipe[]>([]);
-const recipe = ref<Omit<Recipe, "id" | "createdAt" | "updatedAt" | "status">>({
-  title: "",
-  description: "",
+const toyss = ref<Toys[]>([]);
+const toys = ref<Omit<Toys, "id" | "createdAt" | "updatedAt" | "status">>({
+  nama: "",
+  cerita: ""
 });
-const activeRecipes = computed(() =>
-  recipes.value.filter((recipe) => !recipe.status)
+const activeToyss = computed(() =>
+  toyss.value.filter((toys) => !toys.status)
 );
-const completedRecipes = computed(() =>
-  recipes.value.filter((recipe) => recipe.status)
+const completedToyss = computed(() =>
+  toyss.value.filter((toys) => toys.status)
 );
 const itemRefs = ref<Map<string, HTMLIonItemSlidingElement>>(new Map());
 let intervalId: any;
@@ -242,7 +242,7 @@ const getRelativeTime = (date: any) => {
   }
 };
 
-const loadRecipes = async (isLoading = true) => {
+const loadToyss = async (isLoading = true) => {
   let loading;
   if (isLoading) {
     loading = await loadingController.create({
@@ -252,7 +252,7 @@ const loadRecipes = async (isLoading = true) => {
   }
 
   try {
-    recipes.value = await firestoreService.getGlobalRecipes();
+    toyss.value = await firestoreService.getGlobalToyss();
   } catch (error) {
     console.error(error);
   } finally {
@@ -264,7 +264,7 @@ const loadRecipes = async (isLoading = true) => {
 
 // dijalankan setiap halaman diload, load data dan set interval update 1 menit
 onMounted(() => {
-  loadRecipes();
+  loadToyss();
   intervalId = setInterval(() => {
     timeUpdateTrigger.value++;
   }, 60000);
@@ -278,7 +278,7 @@ onUnmounted(() => {
 // handle swipe refresher
 const handleRefresh = async (event: any) => {
   try {
-    await loadRecipes(false);
+    await loadToyss(false);
   } catch (error) {
     console.error("Error refreshing:", error);
   } finally {
@@ -288,25 +288,25 @@ const handleRefresh = async (event: any) => {
 
 // handle submit add/edit pada modal
 const handleSubmit = async (
-  recipe: Omit<Recipe, "id" | "createdAt" | "updatedAt" | "status">
+  toys: Omit<Toys, "id" | "createdAt" | "updatedAt" | "status">
 ) => {
-  if (!recipe.title) {
+  if (!toys.nama) {
     await showToast("Title is required", "warning", warningOutline);
     return;
   }
   try {
     if (editingId.value) {
-      await firestoreService.updateRecipe(editingId.value, recipe as Recipe);
+      await firestoreService.updateToys(editingId.value, toys as Toys);
       await showToast(
-        "Recipe updated successfully",
+        "Toys updated successfully",
         "success",
         checkmarkCircle
       );
     } else {
-      await firestoreService.addRecipeGlobal(recipe as Recipe);
-      await showToast("Recipe added successfully", "success", checkmarkCircle);
+      await firestoreService.addToysGlobal(toys as Toys);
+      await showToast("Toys added successfully", "success", checkmarkCircle);
     }
-    loadRecipes();
+    loadToyss();
   } catch (error) {
     await showToast("An error occurred", "danger", closeCircle);
     console.error(error);
@@ -315,41 +315,41 @@ const handleSubmit = async (
   }
 };
 
-const handleEdit = async (editRecipe: Recipe) => {
-  const slidingItem = itemRefs.value.get(editRecipe.id!);
+const handleEdit = async (editToys: Toys) => {
+  const slidingItem = itemRefs.value.get(editToys.id!);
   await slidingItem?.close();
 
-  editingId.value = editRecipe.id!;
-  recipe.value = {
-    title: editRecipe.title,
-    description: editRecipe.description,
+  editingId.value = editToys.id!;
+  toys.value = {
+    nama: editToys.nama,
+    cerita: editToys.cerita
   };
   isOpen.value = true;
 };
 
 // handle delete click/swipe
-const handleDelete = async (deleteRecipe: Recipe) => {
+const handleDelete = async (deleteToys: Toys) => {
   try {
-    await firestoreService.deleteRecipe(deleteRecipe.id!);
-    await showToast("Recipe deleted successfully", "success", checkmarkCircle);
-    loadRecipes();
+    await firestoreService.deleteToys(deleteToys.id!);
+    await showToast("Toys deleted successfully", "success", checkmarkCircle);
+    loadToyss();
   } catch (error) {
-    await showToast("Failed to delete recipe", "danger", closeCircle);
+    await showToast("Failed to delete toys", "danger", closeCircle);
     console.error(error);
   }
 };
 
-const handleStatus = async (statusRecipe: Recipe) => {
-  const slidingItem = itemRefs.value.get(statusRecipe.id!);
+const handleStatus = async (statusToys: Toys) => {
+  const slidingItem = itemRefs.value.get(statusToys.id!);
   await slidingItem?.close();
   try {
-    await firestoreService.updateStatus(statusRecipe.id!, !statusRecipe.status);
+    await firestoreService.updateStatus(statusToys.id!, !statusToys.status);
     await showToast(
-      `Recipe marked as ${!statusRecipe.status ? "completed" : "active"}`,
+      `Toys marked as ${!statusToys.status ? "completed" : "active"}`,
       "success",
       checkmarkCircle
     );
-    loadRecipes();
+    loadToyss();
   } catch (error) {
     await showToast("Failed to update status", "danger", closeCircle);
     console.error(error);
